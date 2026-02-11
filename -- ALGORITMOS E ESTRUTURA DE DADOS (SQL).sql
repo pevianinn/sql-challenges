@@ -134,10 +134,12 @@ SELECT nome, salario FROM funcionarios WHERE nome != 'João'; -- Seleciona os no
 -------------------------------------------------------------------------------------------
 
 --- "DISTINCT";
--- A palavra-chave "DISTINCT" é usada para retornar apenas valores distintos(diferentes) em uma consulta, ou seja, não repete valores duplicados.
+-- A palavra-chave "DISTINCT" é usada para retornar apenas valores distintos(diferentes) em uma consulta, ou seja, não repete valores duplicados, só retorna um valor único para cada valor distinto encontrado na coluna especificada.
 -- Exemplo de uso do "DISTINCT":
 SELECT DISTINCT departamento FROM funcionarios; -- Seleciona todos os departamentos distintos na tabela "funcionarios".
-
+SELECT DISTINCT nome FROM funcionarios WHERE salario > 4000; -- Seleciona os nomes distintos dos funcionários com salário maior que 4000 na tabela "funcionarios".
+SELECT DISTINCT departamento FROM funcionarios WHERE salario > 4000; -- Seleciona os departamentos distintos dos funcionários com salário maior que 4000 na tabela "funcionarios".
+SELECT DISTINCT nome FROM funcionarios WHERE departamento = 'Vendas'; -- Seleciona os nomes distintos dos funcionários que trabalham no departamento de Vendas na tabela "funcionarios".
 ------------------------------------------------------------------------------------------
 
 --- ALTER TABLE e DROP;
@@ -370,19 +372,36 @@ SELECT * FROM funcionarios WHERE NOT nome LIKE '%an%'; -- Seleciona todos os fun
 
 ------------------------------------------------------------------------------------------
 
+--- LIMIT;
+-- O comando LIMIT é usado para restringir o número de registros retornados por uma consulta SQL.
+
+-- Exemplo de uso do LIMIT:
+SELECT * FROM funcionarios LIMIT 5; -- Retorna os primeiros 5 registros da tabela "funcionarios".
+SELECT * FROM pedidos LIMIT 10; -- Retorna os primeiros 10 registros da tabela "pedidos".
+SELECT * FROM funcionarios WHERE salario > 4000 LIMIT 3; -- Retorna os primeiros 3 registros da tabela "funcionarios" onde o salário é maior que 4000.
+SELECT * FROM pedidos WHERE status_pedido = 'Enviado' LIMIT 7; -- Retorna os primeiros 7 registros da tabela "pedidos" onde o status do pedido é 'Enviado'.
+SELECT * FROM funcionarios LIMIT 0, 5; -- Retorna os primeiros 5 registros da tabela "funcionarios", começando do índice 0 (primeiro registro).
+SELECT * FROM funcionarios LIMIT 5, 10; -- Retorna 10 registros da tabela "funcionarios", começando a partir do 6º registro (índice 5).
+SELECT * FROM funcionarios LIMIT 5 OFFSET 10; -- Retorna 5 registros da tabela "funcionarios", começando a partir do 11º registro (índice 10).
+
+------------------------------------------------------------------------------------------
+
 --- BETWEEN (...) AND (...);
 -- O operador BETWEEN é usado para filtrar valores dentro de um intervalo específico (entre)
 
 -- Exemplo de uso do BETWEEN:
 SELECT * FROM funcionarios WHERE salario BETWEEN 2000 AND 5000; -- Seleciona todos os funcionários com salário entre 2000 e 5000.
 SELECT * FROM pedidos WHERE data_pedido BETWEEN '2023-01-01' AND '2023-06-30'; -- Seleciona todos os pedidos feitos entre 1º de janeiro de 2023 e 30 de junho de 2023.
+
 ------------------------------------------------------------------------------------------
 
 --- ORDER BY;
 -- O comando ORDER BY é usado para ordenar os resultados de uma consulta SQL com base em uma ou mais colunas.
+
 -- Exemplo de uso do ORDER BY:
 SELECT * FROM funcionarios ORDER BY salario ASC; -- Ordena os funcionários pelo salário em ordem crescente (do menor para o maior).
 SELECT * FROM funcionarios ORDER BY salario DESC; -- Ordena os funcionários pelo salário em ordem decrescente (do maior para o menor).
+SELECT * FROM funcionarios ORDER BY departamento, salario ASC; -- Ordena os funcionários primeiro pelo departamento em ordem crescente e depois pelo salário em ordem crescente dentro de cada departamento.
 SELECT * FROM funcionarios ORDER BY departamento ASC, salario DESC; -- Ordena os funcionários primeiro pelo departamento em ordem crescente e depois pelo salário em ordem decrescente dentro de cada departamento.
 
 --- Podemos usar o ORDER BY com textos também:
@@ -394,13 +413,16 @@ SELECT * FROM pedidos ORDER BY data_pedido ASC; -- Ordena os pedidos pela data e
 SELECT * FROM pedidos ORDER BY data_pedido DESC; -- Ordena os pedidos pela data em ordem decrescente (do mais recente para o mais antigo).
 
 ------------------------------------------------------------------------------------------
-
 --- ALIAS;
 -- Um alias é um nome temporário (apelido em inglês) atribuído a uma tabela ou coluna em uma consulta SQL.
 -- Ele é usado para tornar os nomes mais legíveis ou para evitar conflitos de nomes em consultas complexas.
+
 -- Exemplo de uso do ALIAS:
 SELECT nome AS nome_funcionario, salario AS salario_funcionario -- Nome original AS apelido temporário
 FROM funcionarios; -- Neste exemplo, "nome_funcionario" e "salario_funcionario" são aliases para as colunas "nome" e "salario" da tabela "funcionarios".
+
+SELECT produto_id AS id_produto, nome AS nome_produto, preco AS preco_produto -- Nome original AS apelido temporário
+FROM produtos; -- Neste exemplo, "id_produto", "nome_produto" e "preco_produto" são aliases para as colunas "produto_id", "nome" e "preco" da tabela "produtos". 
 
 --- Podemos usar alias também para fazer cálculos:
 CREATE TABLE jogadores (
@@ -414,8 +436,185 @@ CREATE TABLE jogadores (
 
 ------------------------------------------------------------------------------------------
 
+--- GROUP BY (SUM, AVG, COUNT, MAX, MIN);
+-- O comando GROUP BY é usado para agrupar registros com valores semelhantes em uma ou mais colunas.
+-- Ele é frequentemente usado em conjunto com funções de agregação para calcular valores resumidos para cada grupo.
+-- Para usarmos a função GROUP BY, temos que utilizar uma função de agregação, como SUM, AVG, COUNT, MAX ou MIN, para calcular um valor para cada grupo de registros.
+
+-- SUM(): Retorna a soma total de uma coluna numérica.
+-- AVG(): Retorna a média de uma coluna numérica.
+-- COUNT(): Retorna o número de registros em um conjunto de resultados.
+-- MAX(): Retorna o valor máximo de uma coluna.
+-- MIN(): Retorna o valor mínimo de uma coluna. 
+
+-- Exemplo de uso do GROUP BY:
+SELECT departamento, COUNT(*) AS total_funcionarios
+FROM funcionarios
+GROUP BY departamento; -- Agrupa os funcionários por departamento e retorna o número total de funcionários em cada departamento.
+
+SELECT departamento, AVG(salario) AS media_salarios
+FROM funcionarios
+GROUP BY departamento; -- Agrupa os funcionários por departamento e retorna a média dos salários em cada departamento.
+
+SELECT departamento, SUM(salario) AS total_salarios
+FROM funcionarios
+GROUP BY departamento; -- Agrupa os funcionários por departamento e retorna a soma total dos salários em cada departamento.
+
+SELECT departamento, MAX(salario) AS maior_salario
+FROM funcionarios
+GROUP BY departamento; -- Agrupa os funcionários por departamento e retorna o maior salário em cada departamento.
+
+SELECT departamento, MIN(salario) AS menor_salario
+FROM funcionarios
+GROUP BY departamento; -- Agrupa os funcionários por departamento e retorna o menor salário em cada departamento.
+
+------------------------------------------------------------------------------------------
+
+--- HAVING;
+-- O comando HAVING é usado para filtrar os resultados de uma consulta que utiliza o GROUP BY, permitindo especificar condições para os grupos de registros.
+-- Ele é semelhante ao WHERE, mas é aplicado após a agregação dos dados, ou seja, depois que os registros foram agrupados.
+
+-- Exemplo de uso do HAVING:
+SELECT departamento, COUNT(*) AS total_funcionarios -- Retorna o número total de funcionários em cada departamento.
+FROM funcionarios
+GROUP BY departamento
+HAVING COUNT(*) > 5; -- Retorna os departamentos que têm mais de 5 funcionários.
+
+SELECT departamento, AVG(salario) AS media_salarios -- Retorna a média dos salários em cada departamento.
+FROM funcionarios
+GROUP BY departamento
+HAVING AVG(salario) > 4000; -- Retorna os departamentos onde a média dos salários é maior que 4000.
+
+SELECT departamento, SUM(salario) AS total_salarios -- Retorna a soma total dos salários em cada departamento.
+FROM funcionarios
+GROUP BY departamento
+HAVING SUM(salario) > 20000; -- Retorna os departamentos onde a soma total dos salários é maior que 20000.
+
+SELECT departamento, MAX(salario) AS maior_salario -- Retorna o maior salário em cada departamento.
+FROM funcionarios
+GROUP BY departamento
+HAVING MAX(salario) > 5000; -- Retorna os departamentos onde o maior salário é maior que 5000.
+
+SELECT departamento, MIN(salario) AS menor_salario -- Retorna o menor salário em cada departamento.
+FROM funcionarios
+GROUP BY departamento
+HAVING MIN(salario) < 3000; -- Retorna os departamentos onde o menor salário é menor que 3000.
+
+--- Utilizando o HAVING com funções de agregação e operadores lógicos:
+SELECT departamento, COUNT(*) AS total_funcionarios -- Retorna o número total de funcionários em cada departamento.
+FROM funcionarios
+GROUP BY departamento
+HAVING COUNT(*) > 5 AND AVG(salario) > 4000; -- Retorna os departamentos que têm mais de 5 funcionários e onde a média dos salários é maior que 4000.
+
+SELECT departamento, SUM(salario) AS total_salarios -- Retorna a soma total dos salários em cada departamento.
+FROM funcionarios
+GROUP BY departamento
+HAVING SUM(salario) > 20000 OR MAX(salario) > 5000; -- Retorna os departamentos onde a soma total dos salários é maior que 20000 ou onde o maior salário é maior que 5000.
+
+SELECT departamento, MIN(salario) AS menor_salario -- Retorna o menor salário em cada departamento.
+FROM funcionarios
+GROUP BY departamento
+HAVING MIN(salario) < 3000 AND NOT MAX(salario) > 5000; -- Retorna os departamentos onde o menor salário é menor que 3000 e onde o maior salário não é maior que 5000.
+
+------------------------------------------------------------------------------------------
+
+--- CASE;
+-- O comando CASE é usado para criar condições lógicas em uma consulta SQL, permitindo retornar valores diferentes com base em condições específicas.
+-- Ele é semelhante a uma estrutura de controle de fluxo em linguagens de programação, como o if-else.
+
+-- Exemplo de uso do CASE:
+SELECT nome, salario,
+CASE -- Chamada da função, tipo "While" no Phyton
+    WHEN salario > 5000 THEN 'Alto' -- Se a condição for verdadeira, retorna 'Alto'
+    WHEN salario BETWEEN 3000 AND 5000 THEN 'Médio' -- Se a condição for verdadeira, retorna 'Médio'
+    ELSE 'Baixo' -- Se nenhuma das condições anteriores for verdadeira, retorna 'Baixo'
+END AS nivel_salario
+FROM funcionarios; -- Neste exemplo, a consulta retorna o nome, salário e um novo campo "nivel_salario" que classifica o salário como 'Alto', 'Médio' ou 'Baixo' com base nos valores do salário.
+
+SELECT nome, departamento,
+CASE departamento
+    WHEN 'Vendas' THEN 'Departamento de Vendas'
+    WHEN 'Marketing' THEN 'Departamento de Marketing'
+    WHEN 'TI' THEN 'Departamento de Tecnologia da Informação'
+    ELSE 'Outro Departamento'
+END AS nome_departamento
+FROM funcionarios; -- Neste exemplo, a consulta retorna o nome, departamento e um novo campo "nome_departamento" que fornece uma descrição mais detalhada do departamento com base no valor da coluna "departamento".
+
+--- Usando CASE com todas as funções aprendidas (banco de dados "suco_vendas"):
+SELECT EMBALAGEM,
+CASE 
+    WHEN PRECO_DE_LISTA >= 12 THEN 'PRODUTO CARO' -- Se o preço de lista for maior ou igual a 12, retorna 'PRODUTO CARO'
+    WHEN PRECO_DE_LISTA >= 7 AND PRECO_DE_LISTA < 12 THEN 'PRODUTO EM CONTA' -- Se o preço de lista for entre 7 e 12, retorna 'PRODUTO EM CONTA'
+    ELSE 'PRODUTO BARATO'  -- Se nenhuma das condições anteriores for verdadeira, retorna 'PRODUTO BARATO'
+END AS STATUS_PRECO, AVG(PRECO_DE_LISTA) AS PRECO_MEDIO -- Retorna a embalagem, o status do preço e a média do preço de lista
+FROM tabela_de_produtos 
+WHERE sabor = 'Manga'
+GROUP BY EMBALAGEM,
+CASE 
+    WHEN PRECO_DE_LISTA >= 12 THEN 'PRODUTO CARO' 
+    WHEN PRECO_DE_LISTA >= 7 AND PRECO_DE_LISTA < 12 THEN 'PRODUTO EM CONTA'
+    ELSE 'PRODUTO BARATO' 
+END 
+ORDER BY EMBALAGEM;
+
+------------------------------------------------------------------------------------------
+
+--- JOIN;
+-- O comando JOIN é usado para combinar registros de duas ou mais tabelas em um banco de dados com base em uma condição de correspondência entre as tabelas.
+-- Existem diferentes tipos de JOIN, como INNER JOIN, LEFT JOIN, RIGHT JOIN, FULL JOIN e CROSS JOIN, cada um com uma finalidade específica para determinar quais registros serão incluídos no resultado da consulta.
+
+-- Vamos utilizar um banco de dados fora do contexto de funcionários, para exemplificar melhor o uso do JOIN,
+-- Utilizaremos o banco de dados "suco_vendas", que tem as tabelas "tabela_de_produtos", "tabela_de_vendedores" e "notas_fiscais".
+SELECT * FROM tabela_de_vendedores;
+SELECT * FROM notas_fiscais;
+-- Selecionará todos os registros da tabela "tabela_de_vendedores" e "notas_fiscais".
+
+-- INNER JOIN: Retorna apenas os registros que têm correspondência em ambas as tabelas.
+SELECT * FROM tabela_de_vendedores A -- Seleciona todos os registros da tabela "tabela_de_vendedores" e atribui o alias "A" para facilitar a referência à tabela.
+INNER JOIN notas_fiscais B -- Realiza um INNER JOIN com a tabela "notas_fiscais" e atribui o alias "B".
+ON A.MATRICULA = B.MATRICULA; --- Retorna os registros onde a matrícula do vendedor na tabela "tabela_de_vendedores" corresponde à matrícula na tabela "notas_fiscais".
+-- Perceba que chamamos a tabela "tabela_de_vendedores" de "A" e a tabela "notas_fiscais" de "B", para facilitar a escrita do código, mas isso é opcional.
+
+--- Também podemos usar outros comandos com JOIN, como o GOUP BY;
+SELECT A.MATRICULA, A.NOME, COUNT(*) FROM -- Aplicando o COUNT (*) para contar o número de notas fiscais associadas a cada vendedor.
+tabela_de_vendedores A 
+INNER JOIN notas_fiscais B
+ON A.MATRICULA = B.MATRICULA
+GROUP BY A.MATRICULA, A.NOME; -- Retorna a matrícula, nome e o número de notas fiscais associadas a cada vendedor, agrupando os resultados por matrícula e nome do vendedor.
+-- Perceba que o GROUP BY é aplicado após o JOIN, para agrupar os resultados com base na matrícula e nome do vendedor.
+
+-- LEFT JOIN: Retorna todos os registros da tabela à esquerda (tabela "A") e os registros correspondentes da tabela à direita (tabela "B"). Se não houver correspondência, os campos da tabela "B" serão preenchidos com NULL.
+SELECT A.NOME, B.HOBBY FROM 
+TABELA_ESQUERDA A
+LEFT JOIN TABELA_DIREITA B
+ON A.IDENTIFICADOR = B.IDENTIFICADOR; -- Retorna o nome da tabela "A" e o hobby da tabela "B", incluindo todos os registros da tabela "A" e os hobbies correspondentes da tabela "B". 
+-- Se um registro da tabela "A" não tiver um hobby correspondente na tabela "B", o campo do hobby será preenchido com NULL.
+
+-- RIGHT JOIN: Retorna todos os registros da tabela à direita (tabela "B") e os registros correspondentes da tabela à esquerda (tabela "A"). Se não houver correspondência, os campos da tabela "A" serão preenchidos com NULL.
+SELECT A.NOME, B.HOBBY FROM 
+TABELA_ESQUERDA A
+RIGHT JOIN TABELA_DIREITA B
+ON A.IDENTIFICADOR = B.IDENTIFICADOR; -- Retorna o nome da tabela "A" e o hobby da tabela "B", incluindo todos os registros da tabela "B" e os nomes correspondentes da tabela "A".
+-- Se um registro da tabela "B" não tiver um nome correspondente na tabela "A", o campo do nome será preenchido com NULL.
+
+-- FULL JOIN: Retorna todos os registros quando há uma correspondência em uma das tabelas. Se não houver correspondência, os campos da tabela sem correspondência serão preenchidos com NULL.
+SELECT A.NOME, B.HOBBY FROM 
+TABELA_ESQUERDA A
+FULL JOIN TABELA_DIREITA B
+ON A.IDENTIFICADOR = B.IDENTIFICADOR; -- Retorna o nome da tabela "A" e o hobby da tabela "B", incluindo todos os registros de ambas as tabelas.
+-- Se um registro da tabela "A" não tiver um hobby correspondente na tabela "B", o campo do hobby será preenchido com NULL. Se um registro da tabela "B" não tiver um nome correspondente na tabela "A", o campo do nome será preenchido com NULL.
+
+-- CROSS JOIN: Retorna o produto cartesiano de ambas as tabelas, ou seja, combina cada registro da tabela "A" com cada registro da tabela "B".
+SELECT A.NOME, B.HOBBY FROM
+TABELA_ESQUERDA A, TABELA-DIREITA B; -- Retorna o nome da tabela "A" e o hobby da tabela "B", combinando cada registro da tabela "A" com cada registro da tabela "B".
+-- O CROSS JOIN pode resultar em um número muito grande de registros, dependendo do número de registros em cada tabela, pois combina cada registro de uma tabela com todos os registros da outra tabela.
+-- Fique atento com a chamada da função CROSS JOIN, ela pode ser feita de duas formas: usando a palavra-chave CROSS JOIN ou simplesmente listando as tabelas separadas por vírgula, como no exemplo acima. Ambas as formas produzem o mesmo resultado, que é o produto cartesiano das duas tabelas.
+
+------------------------------------------------------------------------------------------
+
 --- UPDATE;
 -- O comando UPDATE é usado para modificar os dados existentes em uma tabela de banco de dados.
+
 -- Exemplo de uso do UPDATE:
 UPDATE funcionarios
 SET salario = 5500.00
@@ -432,6 +631,7 @@ WHERE id = 2; -- Atualiza o salário e o departamento do funcionário com ID 2 n
 
 --- DELETE;
 -- O comando DELETE é usado para remover registros de uma tabela de banco de dados.
+
 -- Exemplo de uso do DELETE:
 DELETE FROM funcionarios
 WHERE id = 3; -- Remove o registro do funcionário com ID 3 da tabela "funcionarios".
@@ -450,6 +650,7 @@ WHERE departamento = 'Recursos Humanos'; -- Remove todos os funcionários do dep
 --- DELETE CASCADE;
 -- O DELETE CASCADE é uma opção usada em conjunto com chaves estrangeiras (FOREIGN KEY) em bancos de dados relacionais.
 -- Quando uma linha em uma tabela pai é excluída, o DELETE CASCADE garante que todas as linhas relacionadas na tabela filha também sejam excluídas automaticamente.
+
 -- Exemplo de uso do DELETE CASCADE:
 CREATE TABLE departamentos (
     departamento_id INT PRIMARY KEY,
@@ -642,6 +843,97 @@ SELECT * FROM tabela_de_produtos WHERE SABOR LIKE '%Maça%'; -- Selecionando tod
 
 SELECT * FROM tabela_de_produtos WHERE SABOR LIKE '%Maça%'
 AND EMBALAGEM = 'PET'; -- Selecionando todos os produtos cujo sabor contém a palavra 'Maça' e que têm embalagem 'PET' da tabela "tabela_de_produtos".
+
+--- Vendo formas diferentes de exibir os resultados;
+SELECT EMBALAGEM, TAMANHO FROM tabela_de_produtos; -- Selecionando as colunas "EMBALAGEM" e "TAMANHO" da tabela "tabela_de_produtos".
+
+SELECT DISTINCT EMBALAGEM, TAMANHO FROM tabela_de_produtos; -- Selecionando as colunas "EMBALAGEM" e "TAMANHO" da tabela "tabela_de_produtos", aqui a palavra DISTINCT elimina valores duplicados, exibindo apenas combinações únicas de embalagem e tamanho.
+
+SELECT DISTINCT EMBALAGEM, TAMANHO FROM tabela_de_produtos
+WHERE SABOR = 'Laranja'; -- Selecionando as colunas "EMBALAGEM" e "TAMANHO" da tabela "tabela_de_produtos" onde o sabor é 'Laranja', eliminando valores duplicados.
+
+SELECT DISTINCT EMBALAGEM, TAMANHO, SABOR FROM tabela_de_produtos; -- Selecionando as colunas "EMBALAGEM", "TAMANHO" e "SABOR" da tabela "tabela_de_produtos", eliminando valores duplicados.
+
+SELECT * FROM tabela_de_produtos LIMIT 5; -- Selecionando os primeiros 5 registros da tabela "tabela_de_produtos".
+
+SELECT * FROM tabela_de_produtos LIMIT 2,3; -- Selecionando 3 registros da tabela "tabela_de_produtos", começando a partir do 3º registro (índice 2).
+
+SELECT * FROM tabela_de_produtos ORDER BY PRECO_DE_LISTA; -- Selecionando todos os produtos da tabela "tabela_de_produtos" e ordenando-os pelo preço de lista em ordem crescente.
+
+SELECT * FROM tabela_de_produtos ORDER BY PRECO_DE_LISTA DESC; -- Selecionando todos os produtos da tabela "tabela_de_produtos" e ordenando-os pelo preço de lista em ordem decrescente.
+
+SELECT * FROM tabela_de_produtos ORDER BY NOME_DO_PRODUTO; -- Selecionando todos os produtos da tabela "tabela_de_produtos" e ordenando-os pelo nome do produto em ordem alfabética crescente.
+
+SELECT * FROM tabela_de_produtos ORDER BY NOME_DO_PRODUTO DESC; -- Selecionando todos os produtos da tabela "tabela_de_produtos" e ordenando-os pelo nome do produto em ordem alfabética decrescente.
+
+SELECT * FROM tabela_de_produtos ORDER BY EMBALAGEM DESC, NOME_DO_PRODUTO ASC; -- Selecionando todos os produtos da tabela "tabela_de_produtos" e ordenando-os primeiro pela embalagem em ordem decrescente e depois pelo nome do produto em ordem crescente dentro de cada embalagem.
+
+SELECT ESTADO, LIMITE_DE_CREDITO FROM tabela_de_clientes; -- Selecionando as colunas "ESTADO" e "LIMITE_DE_CREDITO" da tabela "tabela_de_clientes".
+
+SELECT ESTADO, SUM(LIMITE_DE_CREDITO) AS LIMITE_TOTAL FROM tabela_de_clientes GROUP BY ESTADO; -- Selecionando o estado e a soma do limite de crédito para cada estado da tabela "tabela_de_clientes", agrupando os resultados por estado.
+
+SELECT EMBALAGEM, MAX(PRECO_DE_LISTA) AS MAIOR_PRECO FROM tabela_de_Produtos GROUP BY EMBALAGEM; -- Selecionando a embalagem e o preço de lista máximo para cada embalagem da tabela "tabela_de_produtos", agrupando os resultados por embalagem.
+
+SELECT EMBALAGEM, COUNT(*) AS CONTADOR FROM tabela_de_produtos GROUP BY EMBALAGEM; -- Selecionando a embalagem e o número de produtos para cada embalagem da tabela "tabela_de_produtos", agrupando os resultados por embalagem.
+
+SELECT BAIRRO, SUM(LIMITE_DE_CREDITO) AS LIMITE FROM tabela_de_clientes
+WHERE CIDADE = 'Rio de Janeiro' GROUP BY BAIRRO; -- Selecionando o bairro e a soma do limite de crédito para cada bairro da tabela "tabela_de_clientes" onde a cidade é 'Rio de Janeiro', agrupando os resultados por bairro.
+
+SELECT ESTADO, BAIRRO, SUM(LIMITE_DE_CREDITO) AS LIMITE FROM tabela_de_clientes
+GROUP BY ESTADO, BAIRRO; -- Selecionando o estado, bairro e a soma do limite de crédito para cada combinação de estado e bairro da tabela "tabela_de_clientes", agrupando os resultados por estado e bairro.
+
+SELECT ESTADO, BAIRRO, SUM(LIMITE_DE_CREDITO) AS LIMITE FROM tabela_de_clientes
+WHERE CIDADE = 'Rio de Janeiro'
+GROUP BY ESTADO, BAIRRO
+ORDER BY BAIRRO; -- Selecionando o estado, bairro e a soma do limite de crédito para cada combinação de estado e bairro da tabela "tabela_de_clientes" onde a cidade é 'Rio de Janeiro', agrupando os resultados por estado e bairro e ordenando os resultados por bairro em ordem alfabética crescente.
+
+SELECT ESTADO, SUM(LIMITE_DE_CREDITO) AS SOMA_LIMITE FROM tabela_de_clientes
+WHERE SOMA_LIMITE > 900000
+GROUP BY ESTADO; -- Este comando SQL é inválido porque a cláusula WHERE não pode referenciar um alias (SOMA_LIMITE) definido na cláusula SELECT. Para corrigir isso, você pode usar a cláusula HAVING em vez de WHERE para filtrar os resultados com base no valor agregado. O comando corrigido seria:
+
+SELECT ESTADO, SUM(LIMITE_DE_CREDITO) AS SOMA_LIMITE FROM tabela_de_clientes
+GROUP BY ESTADO HAVING SUM(LIMITE_DE_CREDITO) > 900000; -- Selecionando o estado e a soma do limite de crédito para cada estado da tabela "tabela_de_clientes", agrupando os resultados por estado e filtrando para incluir apenas aqueles estados onde a soma do limite de crédito é maior que 900000.
+
+SELECT EMBALAGEM, MAX(PRECO_DE_LISTA) AS MAIOR_PRECO,
+MIN(PRECO_DE_LISTA) AS MENOR_PRECO FROM tabela_de_produtos
+GROUP BY EMBALAGEM; -- Selecionando a embalagem, o preço de lista máximo e o preço de lista mínimo para cada embalagem da tabela "tabela_de_produtos", agrupando os resultados por embalagem.
+
+SELECT EMBALAGEM, MAX(PRECO_DE_LISTA) AS MAIOR_PRECO,
+MIN(PRECO_DE_LISTA) AS MENOR_PRECO FROM tabela_de_produtos
+GROUP BY EMBALAGEM HAVING SUM(PRECO_DE_LISTA) <= 80; -- Selecionando a embalagem, o preço de lista máximo e o preço de lista mínimo para cada embalagem da tabela "tabela_de_produtos", agrupando os resultados por embalagem e filtrando para incluir apenas aquelas embalagens onde a soma do preço de lista é menor ou igual a 80.
+
+SELECT EMBALAGEM, MAX(PRECO_DE_LISTA) AS MAIOR_PRECO,
+MIN(PRECO_DE_LISTA) AS MENOR_PRECO FROM tabela_de_produtos
+GROUP BY EMBALAGEM HAVING SUM(PRECO_DE_LISTA) <= 80 AND MAX(PRECO_DE_LISTA) >= 5; -- Selecionando a embalagem, o preço de lista máximo e o preço de lista mínimo para cada embalagem da tabela "tabela_de_produtos", agrupando os resultados por embalagem e filtrando para incluir apenas aquelas embalagens onde a soma do preço de lista é menor ou igual a 80 e onde o preço de lista máximo é maior ou igual a 5.
+
+SELECT NOME_DO_PRODUTO, PRECO_DE_LISTA,
+CASE
+   WHEN PRECO_DE_LISTA >= 12 THEN 'PRODUTO CARO'
+   WHEN PRECO_DE_LISTA >= 7 AND PRECO_DE_LISTA < 12 THEN 'PRODUTO EM CONTA'
+   ELSE 'PRODUTO BARATO'
+END AS STATUS_PRECO
+FROM tabela_de_produtos; -- Selecionando o nome do produto, preço de lista e um novo campo "STATUS_PRECO" que classifica o preço de lista como 'PRODUTO CARO', 'PRODUTO EM CONTA' ou 'PRODUTO BARATO' com base nos valores do preço de lista da tabela "tabela_de_produtos".
+
+SELECT EMBALAGEM,
+CASE
+   WHEN PRECO_DE_LISTA >= 12 THEN 'PRODUTO CARO'
+   WHEN PRECO_DE_LISTA >= 7 AND PRECO_DE_LISTA < 12 THEN 'PRODUTO EM CONTA'
+   ELSE 'PRODUTO BARATO'
+END AS STATUS_PRECO, AVG(PRECO_DE_LISTA) AS PRECO_MEDIO
+FROM tabela_de_produtos
+WHERE sabor = 'Manga'
+GROUP BY EMBALAGEM,
+CASE
+   WHEN PRECO_DE_LISTA >= 12 THEN 'PRODUTO CARO'
+   WHEN PRECO_DE_LISTA >= 7 AND PRECO_DE_LISTA < 12 THEN 'PRODUTO EM CONTA'
+   ELSE 'PRODUTO BARATO'
+END
+ORDER BY EMBALAGEM; -- Selecionando a embalagem, o status do preço e a média do preço de lista para cada combinação de embalagem e status do preço da tabela "tabela_de_produtos" onde o sabor é 'Manga', agrupando os resultados por embalagem e status do preço e ordenando os resultados por embalagem em ordem alfabética crescente.
+
+
+
+
+
 
 
 
