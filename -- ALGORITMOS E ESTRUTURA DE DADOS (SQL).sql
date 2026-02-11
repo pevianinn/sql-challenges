@@ -10,6 +10,9 @@
 
 -- Query;
 -- A Query é uma consulta feita ao banco de dados para buscar informações específicas.
+
+-- SQL File;
+-- Um arquivo SQL é um arquivo de texto que contém comandos SQL. Ele é usado para armazenar e executar scripts SQL, como a criação de tabelas, inserção de dados, consultas e outras operações em um banco de dados.
 -- Sempre que der algum comando na Query, é necessário usar o ponto e vírgula (;) no final do comando para indicar o término do comando SQL.
 
 -------------------------------------------------------------------------------------------
@@ -929,6 +932,7 @@ CASE
    ELSE 'PRODUTO BARATO'
 END
 ORDER BY EMBALAGEM; -- Selecionando a embalagem, o status do preço e a média do preço de lista para cada combinação de embalagem e status do preço da tabela "tabela_de_produtos" onde o sabor é 'Manga', agrupando os resultados por embalagem e status do preço e ordenando os resultados por embalagem em ordem alfabética crescente.
+
 
 
 
