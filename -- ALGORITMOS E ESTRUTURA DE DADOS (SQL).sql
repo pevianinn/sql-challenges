@@ -615,6 +615,51 @@ TABELA_ESQUERDA A, TABELA-DIREITA B; -- Retorna o nome da tabela "A" e o hobby d
 
 ------------------------------------------------------------------------------------------
 
+--- UNION e UNION ALL;
+--  As palavras-chave UNION e UNION ALL são usadas para combinar os resultados de duas ou mais consultas SELECT em um único conjunto de resultados
+
+-- UNION: Retorna apenas os registros distintos (sem duplicatas) do conjunto de resultados combinado.
+SELECT nome FROM funcionarios WHERE departamento = 'Vendas' -- Seleciona os nomes dos funcionários do departamento de Vendas
+UNION
+SELECT nome FROM funcionarios WHERE departamento = 'Marketing'; -- Seleciona os nomes dos funcionários do departamento de Marketing
+-- O resultado dessa consulta será uma lista de nomes de funcionários que estão nos departamentos de Vendas ou Marketing, sem duplicatas.
+
+-- UNION ALL: Retorna todos os registros do conjunto de resultados combinado, incluindo duplicatas.
+SELECT nome FROM funcionarios WHERE departamento = 'Vendas' -- Seleciona os nomes dos funcionários do departamento de Vendas
+UNION ALL
+SELECT nome FROM funcionarios WHERE departamento = 'Marketing'; -- Seleciona os nomes dos funcionários do departamento de Marketing
+-- O resultado dessa consulta será uma lista de nomes de funcionários que estão nos departamentos de Vendas ou Marketing, incluindo duplicatas se houver funcionários com o mesmo nome em ambos os departamentos.
+
+------------------------------------------------------------------------------------------
+
+--- SUBQUERY (SUBCONSULTA);
+-- Uma subquery, ou consulta aninhada, é uma consulta SQL que está dentro de outra consulta SQL. Ela é usada para realizar operações complexas, como filtrar resultados com base em condições que dependem de outra consulta.
+
+-- Exemplo de uso da SUBQUERY:
+SELECT nome, salario FROM funcionarios
+WHERE salario > (SELECT AVG(salario) FROM funcionarios); -- Retorna os nomes e salários dos funcionários cujo salário é maior que a média salarial de todos os funcionários. A subquery (SELECT AVG(salario) FROM funcionarios) calcula a média salarial, e a consulta externa seleciona os funcionários com salário superior a essa média.
+
+-- Outro exemplo:
+SELECT nome FROM funcionarios
+WHERE departamento = (SELECT departamento FROM funcionarios WHERE nome = 'João'); -- Retorna os nomes dos funcionários que estão no mesmo departamento que o funcionário chamado 'João'. A subquery (SELECT departamento FROM funcionarios WHERE nome = 'João') retorna o departamento de João, e a consulta externa seleciona os funcionários que pertencem a esse departamento.
+
+-- Outro exemplo:
+SELECT nome FROM funcionarios
+WHERE id IN (SELECT id_funcionario FROM projetos WHERE nome_projeto = 'Projeto X'); -- Retorna os nomes dos funcionários que estão envolvidos no 'Projeto X'. A subquery (SELECT id_funcionario FROM projetos WHERE nome_projeto = 'Projeto X') retorna os IDs dos funcionários associados ao 'Projeto X', e a consulta externa seleciona os nomes desses funcionários com base nos IDs retornados pela subquery.
+
+-- Outro exemplo:
+SELECT nome FROM 
+(SELECT nome FROM funcionarios WHERE salario > 4000) AS subconsulta
+WHERE nome LIKE 'A%'; -- Retorna os nomes dos funcionários que têm salário maior que 4000 e cujo nome começa com a letra 'A'. A subquery (SELECT nome FROM funcionarios WHERE salario > 4000) retorna os nomes dos funcionários com salário superior a 4000, e a consulta externa filtra esses nomes para incluir apenas aqueles que começam com 'A'.
+
+-- Outro exemplo (tabela "suco_vendas"):
+SELECT X.EMBALAGEM, X.PRECO_MAXIMO FROM 
+(SELECT EMBALAGEM, MAX(PRECO_DE_LISTA) AS PRECO_MAXIMO FROM tabela_de_produtos
+GROUP BY EMBALAGEM) X WHERE X.PRECO_MAXIMO >= 10; -- Repare que colocamos um alias "X" para a subquery, isso é necessário para referenciar os resultados da subquery na consulta externa.
+-- Retorna as embalagens e os preços máximos dos produtos que têm um preço de lista maior ou igual a 10. A subquery (SELECT EMBALAGEM, MAX(PRECO_DE_LISTA) AS PRECO_MAXIMO FROM tabela_de_produtos GROUP BY EMBALAGEM) calcula o preço máximo para cada embalagem, e a consulta externa filtra esses resultados para incluir apenas aqueles com preço máximo maior ou igual a 10.
+
+------------------------------------------------------------------------------------------
+
 --- UPDATE;
 -- O comando UPDATE é usado para modificar os dados existentes em uma tabela de banco de dados.
 
@@ -932,12 +977,4 @@ CASE
    ELSE 'PRODUTO BARATO'
 END
 ORDER BY EMBALAGEM; -- Selecionando a embalagem, o status do preço e a média do preço de lista para cada combinação de embalagem e status do preço da tabela "tabela_de_produtos" onde o sabor é 'Manga', agrupando os resultados por embalagem e status do preço e ordenando os resultados por embalagem em ordem alfabética crescente.
-
-
-
-
-
-
-
-
 
